@@ -154,6 +154,12 @@
 ;; No more terminal emulator inside Emacs. When needed, I'll stick to the default gnome terminal.
 ;; (use-package eat
 ;;   :ensure t)
+(use-package terminal-here
+  :ensure t
+  :general
+  ("C-, o t" 'terminal-here-launch))
+
+  
 #+end_src
 
 ** C language
