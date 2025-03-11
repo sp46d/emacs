@@ -26,7 +26,7 @@
  "C-x C-b" 'consult-buffer
  "C-S-s" 'consult-line
  "C-S-i" 'consult-imenu
- "C-`" 'other-window
+ "M-o" 'other-window
  "C-h v" 'describe-variable
  "C-h f" 'describe-function
  "C-h c" 'describe-face
@@ -84,19 +84,7 @@
  "i" 'ibuffer)
 #+end_src
 
-*** Open applications (o)
-
-#+begin_src emacs-lisp
-  (general-define-key
-   :wk-full-keys nil
-   :prefix "C-, o"
-   "" '(:ignore t :which-key "Open applications")
-   "t" 'eat)
-   ;; "b" 'ivy-bibtex ;; let's consider migrating to citar
-   ;; "f" 'reveal-in-osx-finder)
-#+end_src
-
-*** Org journal (j)--replaced by denote for now
+*** Org journal (j)
 
 #+begin_src emacs-lisp
 (general-define-key
@@ -115,7 +103,7 @@
  :prefix "C-, t"
  "" '(:ignore t :which-key "Toggle")
  "o" 'olivetti-mode
- "c" 'company-mode
+ "c" 'corfu-mode
  ;; "s" 'spell-fu-mode
  "l" 'display-line-numbers-mode)
 #+end_src
