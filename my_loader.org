@@ -3,19 +3,6 @@
 #+STARTUP: overview
 #+PROPERTY: header-args:emacs-lisp :results silent
 
-*TODO*
-1. +Change Modeline color so that I can see the file name better+
-2. +Change Vertico and Company current selection bg color+
-3. +Install Packages (today)+
-4. +Customize display line numbers mode (fixed width) (today)+
-5. Git authentication (tomorrow)
-6. Git push my Emacs configuration (tomorrow)
-7. +Git clone the C repository and start coding! (tomorrow)+
-8. +Org mode (tomorrow)+
-9. +Spell checker (tomorrow)+
-10. Set up pop window for terminal (tomorrow)
-11. Figure out Firefox password (Later someday)
-
 * My name and Email
 
 #+BEGIN_SRC emacs-lisp
@@ -164,8 +151,9 @@
 ** Terminal Emulator
 
 #+begin_src emacs-lisp
-(use-package eat
-  :ensure t)
+;; No more terminal emulator inside Emacs. When needed, I'll stick to the default gnome terminal.
+;; (use-package eat
+;;   :ensure t)
 #+end_src
 
 ** C language
