@@ -1,0 +1,8 @@
+# Ignore everything
+*
+
+# Except for these files
+!.gitignore
+!init.el
+!my_loader.org
+!my_keybindings.org

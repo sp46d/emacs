@@ -1,0 +1,121 @@
+#+TITLE: My Key Bindings
+#+AUTHOR: Sanghyuk Park
+#+STARTUP: overview
+#+PROPERTY: header-args:emacs-lisp :results silent
+
+#+begin_src emacs-lisp
+  (use-package general
+    :ensure t)
+#+end_src
+
+* Unbind keys
+
+#+begin_src emacs-lisp
+  (general-define-key
+   :keymaps '(flyspell-mode-map org-mode-map)
+   "C-," nil
+   "C-'" nil)
+#+end_src
+
+* My keybindings
+** Without leader key
+*** Global
+
+#+begin_src emacs-lisp
+(general-define-key
+ "C-x C-b" 'consult-buffer
+ "C-S-s" 'consult-line
+ "C-S-i" 'consult-imenu
+ "C-`" 'other-window
+ "C-h v" 'describe-variable
+ "C-h f" 'describe-function
+ "C-h c" 'describe-face
+ "C-M-<return>" 'crux-smart-open-line-above
+ "C-M-j" 'crux-top-join-line
+ "C-<backspace>" 'crux-kill-line-backwards
+ "C-x d" 'crux-duplicate-current-line-or-region
+ "C-<tab>" 'mode-line-other-buffer
+ "C-S-c" 'calendar
+ "C-c <up>" 'org-previous-visible-heading
+ "C-c <down>" 'org-next-visible-heading
+ "C-'" 'avy-isearch
+ "C-M-p" 'beginning-of-buffer
+ "C-M-n" 'end-of-buffer
+ "C-a" 'crux-move-beginning-of-line
+ "C-M-." 'xref-find-definitions-other-window
+ "M-." 'xref-find-definitions
+ "M-," 'xref-go-back
+ "C--" 'split-window-below
+ "C-\\" 'split-window-right
+ "C-0" 'delete-window
+ "C-1" 'delete-other-windows
+ "C-M-i" 'emmet-next-edit-point
+ "C-M-S-i" 'emmet-prev-edit-point)
+ #+end_src
+
+** With leader key
+*** File related (f)
+
+#+begin_src emacs-lisp
+(general-define-key
+ :wk-full-keys nil
+ :prefix "C-, f"
+ "" '(:ignore t :which-key "File")
+ "f" 'find-file
+ "F" 'find-file-other-window
+ "s" 'save-buffer
+ "r" 'consult-recent-file
+ "d" 'dired
+ "R" 'crux-rename-file-and-buffer
+ "D" 'crux-delete-file-and-buffer
+ "w" 'write-file)
+#+end_src
+
+*** Buffer related (b)
+
+#+begin_src emacs-lisp
+(general-define-key
+ :wk-full-keys nil
+ :prefix "C-, b"
+ "" '(:ignore t :which-key "Buffer")
+ "s" 'consult-buffer
+ "k" 'kill-current-buffer
+ "K" 'kill-buffer
+ "i" 'ibuffer)
+#+end_src
+
+*** Open applications (o)
+
+#+begin_src emacs-lisp
+  (general-define-key
+   :wk-full-keys nil
+   :prefix "C-, o"
+   "" '(:ignore t :which-key "Open applications")
+   "t" 'eat)
+   ;; "b" 'ivy-bibtex ;; let's consider migrating to citar
+   ;; "f" 'reveal-in-osx-finder)
+#+end_src
+
+*** Org journal (j)--replaced by denote for now
+
+#+begin_src emacs-lisp
+(general-define-key
+ :wk-full-keys nil
+ :prefix "C-, j"
+ "" '(:ignore t :which-key "Org-journal")
+ "n" 'org-journal-new-entry
+ "s" 'org-journal-search)
+#+end_src
+
+*** Toggle (t)
+
+#+begin_src emacs-lisp
+(general-define-key
+ :wk-full-keys nil
+ :prefix "C-, t"
+ "" '(:ignore t :which-key "Toggle")
+ "o" 'olivetti-mode
+ "c" 'company-mode
+ ;; "s" 'spell-fu-mode
+ "l" 'display-line-numbers-mode)
+#+end_src

@@ -1,0 +1,747 @@
+#+TITLE: My GNU Emacs Configuration
+#+AUTHOR: Sanghyuk Park
+#+STARTUP: overview
+#+PROPERTY: header-args:emacs-lisp :results silent
+
+*TODO*
+1. +Change Modeline color so that I can see the file name better+
+2. +Change Vertico and Company current selection bg color+
+3. +Install Packages (today)+
+4. +Customize display line numbers mode (fixed width) (today)+
+5. Git authentication (tomorrow)
+6. Git push my Emacs configuration (tomorrow)
+7. +Git clone the C repository and start coding! (tomorrow)+
+8. +Org mode (tomorrow)+
+9. +Spell checker (tomorrow)+
+10. Set up pop window for terminal (tomorrow)
+11. Figure out Firefox password (Later someday)
+
+* My name and Email
+
+#+BEGIN_SRC emacs-lisp
+  (setq user-full-name "Sanghyuk Park"
+        user-mail-address "sanghyuk.park85@gmail.com")
+  (setq frame-title-format '("" "Sanghyuk Park @ Emacs " emacs-version))
+#+END_SRC
+
+* Emacs basic setup
+** Remember the last place in buffer
+
+#+begin_src emacs-lisp
+  (save-place-mode 1)
+#+end_src
+
+** Automatically revert buffers for changed files
+
+#+begin_src emacs-lisp
+  (global-auto-revert-mode 1)
+  ;; Revert Dired and other buffers
+  (setq global-auto-revert-non-file-buffers t)
+#+end_src
+
+** Emacs startup
+
+#+begin_src emacs-lisp
+  (setq frame-resize-pixelwise t)
+  (tool-bar-mode -1)
+  (scroll-bar-mode -1)
+  (menu-bar-mode -1)
+  (setq inhibit-startup-message t)
+#+end_src
+
+** Backup
+
+#+begin_src emacs-lisp
+  (setq backup-directory-alist '(("." . "~/.config/emacs/.backups")))
+  (setq delete-old-versions -1)
+  (setq version-control t)
+  (setq vc-make-backup-files t)
+#+end_src
+
+** Scrolling behavior
+
+#+begin_src emacs-lisp
+  (setq-default hscroll-margin 1
+                hscroll-step 1
+                scroll-conservatively 101
+                scroll-margin 1
+                scroll-preserve-screen-position nil)
+  (pixel-scroll-precision-mode)
+#+end_src
+
+** 'yes-or-no' to 'y-or-n'
+
+#+begin_src emacs-lisp
+  (fset 'yes-or-no-p 'y-or-n-p)
+#+end_src
+
+** Delete selection mode
+
+#+begin_src emacs-lisp
+  (delete-selection-mode 1)
+#+end_src
+
+** No sentences end with double space
+
+#+begin_src emacs-lisp
+  (setq sentence-end-double-space nil)
+#+end_src
+
+** Visual line mode
+
+#+begin_src emacs-lisp
+  (global-visual-line-mode)
+#+end_src
+
+** Ignore ring bell
+
+#+begin_src emacs-lisp
+  (setq ring-bell-function 'ignore)
+#+end_src
+
+** Tab behavior
+
+#+BEGIN_SRC emacs-lisp
+  (setq default-tab-width 4)
+  (setq-default indent-tabs-mode nil)
+#+END_SRC
+
+** Highlight current line in certain modes
+
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'dired-mode-hook 'hl-line-mode)
+  (add-hook 'package-menu-mode-hook 'hl-line-mode)
+  (add-hook 'org-agenda-mode-hook 'hl-line-mode)
+  ;; (add-hook 'deft-mode-hook 'hl-line-mode)
+#+END_SRC
+
+** Shortcuts to registered files
+
+#+BEGIN_SRC emacs-lisp
+(set-register ?i '(file . "~/.config/emacs/init.el"))
+(set-register ?l '(file . "~/.config/emacs/my_loader.org"))
+(set-register ?k '(file . "~/.config/emacs/my_keybindings.org"))
+#+END_SRC
+
+** No lock files
+
+#+begin_src emacs-lisp
+(setq create-lockfiles nil)
+#+end_src
+
+** Recent files
+
+#+begin_src emacs-lisp
+  (recentf-mode 1)
+  (setq recentf-max-saved-items 50)
+#+end_src
+
+** Emacs server start
+
+#+begin_src emacs-lisp
+  (add-hook 'after-init-hook 'server-start)
+#+end_src
+
+* Functions
+** Dired sorts directories first
+
+#+BEGIN_SRC emacs-lisp
+  (defun mydired-sort ()
+    "Sort dired listings with directories first."
+    (save-excursion
+      (let (buffer-read-only)
+        (forward-line 2) ;; beyond dir. header
+        (sort-regexp-fields t "^.*$" "[ ]*." (point) (point-max)))
+      (set-buffer-modified-p nil)))
+
+  (defadvice dired-readin
+      (after dired-after-updating-hook first () activate)
+    "Sort dired listings with directories first before adding marks."
+    (mydired-sort))
+#+END_SRC
+
+* Packages
+** Terminal Emulator
+
+#+begin_src emacs-lisp
+(use-package eat
+  :ensure t)
+#+end_src
+
+** C language
+
+#+begin_src emacs-lisp
+  (use-package clang-format
+    :ensure t
+    :hook
+    (c-ts-mode . clang-format-on-save-mode))
+
+  (use-package c-ts-mode
+    :hook (c-ts-mode . eglot-ensure)
+    :mode ("\\.c\\'" . c-ts-mode)
+    :config
+    (setq-default c-ts-mode-indent-style "k&r"
+  		c-ts-mode-indent-offset 4))
+#+end_src
+
+** Eglot
+
+#+begin_src emacs-lisp
+  (use-package eglot
+    :custom
+    (eglot-ignored-server-capabilities '(:documentOnTypeFormattingProvider
+                                         :inlayHintProvider
+                                         :hoverProvider)))
+#+end_src
+
+** Themes
+
+#+begin_src emacs-lisp
+;; (use-package solarized-theme
+;;   :ensure t
+;;   :custom
+;;   (solarized-use-variable-pitch nil)
+;;   (solarized-use-less-bold nil)
+;;   (solarized-high-contrast-mode-line t)
+;;   (solarized-scale-org-headlines nil)
+;;   (solarized-height-minus-1 1.0)
+;;   (solarized-height-plus-1 1.0)
+;;   (solarized-height-plus-2 1.0)
+;;   (solarized-height-plus-3 1.0)
+;;   (solarized-height-plus-4 1.0)
+;;   :config
+;;   (solarized-create-theme-file-with-palette 'light 'solarized-sanghyuk-light
+;;     '("#002b36" "#fffff9"
+;;       "#B58900" "#cb4b16" "#dc322f" "#d33682" "#6c71c4" "#268bd2" "#2aa198" "#859900")
+;;     '((custom-theme-set-faces
+;;        theme-name
+;;        `(web-mode-block-control-face ((,class (:foreground ,yellow))))
+;;        `(web-mode-block-delimiter-face ((,class (:foreground ,blue :weight normal))))
+;;        `(web-mode-html-tag-face ((,class (:foreground ,green :weight bold))))
+;;        `(font-lock-doc-face ((,class (:slant italic :foreground ,cyan))))
+;;        `(font-lock-comment-face ((,class (:slant italic :foreground "#919fa1")))) ;;
+;;        `(line-number-current-line ((,class (:foreground ,base00 :weight bold))))
+;;        `(company-tooltip-selection ((,class (:foreground ,base02 :background ,blue :weight bold))))
+;;        )))
+;;   (solarized-create-theme-file-with-palette 'dark 'solarized-sanghyuk-dark
+;;     '("#002b36" "#ffffff"
+;;       ;; yellow    orange    red       magenta   violet    blue      cyan      green
+;;       "#B58900" "#cb4b16" "#dc322f" "#d33682" "#6c71c4" "#268bd2" "#2aa198" "#859900")
+;;     '((custom-theme-set-faces
+;;        theme-name
+;;        `(font-lock-doc-face ((,class (:slant italic :foreground ,cyan))))
+;;        `(line-number-current-line ((,class (:foreground ,base00 :weight bold))))
+;;        `(company-tooltip-selection ((,class (:foreground ,base1 :background ,blue-d :weight bold))))
+;;        )))
+;;   (load-theme 'solarized-sanghyuk-dark t))
+
+
+
+(use-package doom-themes
+  :ensure t
+  :custom
+  (doom-themes-enable-bold t)
+  (doom-themes-enable-italic t)
+  :config
+  (load-theme 'doom-one t)
+  (doom-themes-visual-bell-config)
+  (doom-themes-org-config)
+  (custom-set-faces
+   `(corfu-current ((t (:foreground unspecified :weight bold :background ,(doom-color 'dark-blue)))))
+   `(font-lock-comment-face ((t (:foreground ,(doom-color 'base6)))))))
+
+
+(use-package doom-modeline
+  :ensure t
+  :hook
+  (after-init . doom-modeline-mode))
+
+(use-package spacious-padding
+  :ensure t
+  :hook
+  (after-init . spacious-padding-mode)
+  :custom
+  (spacious-padding-widths
+   '(:header-line-width 5 :mode-line-width 5 :tab-width 4 :fringe-width 5)))
+
+;; Modus theme
+;; (use-package modus-themes
+;;   :ensure t
+;;   :custom
+;;   (modus-themes-mixed-fonts t)
+;;   (modus-themes-bold-constructs t)
+;;   (modus-themes-italic-constructs t)
+;;   (modus-themes-variable-pitch-ui nil)
+;;   (modus-themes-headings
+;;     '((1 . (variable-pitch semibold 1.0))
+;;       (agenda-date . (1.1))
+;;       (agenda-structure . (variable-pitch bold underline 1.5))
+;;       (t . (variable-pitch semibold 1.0))))
+;;   (modus-vivendi-palette-overrides
+;;    '((fg-main "#BBC2CF")
+;;      (bg-main "#002B36")
+;;      (fg-dim "#657B83")
+;;      (bg-dim "#073642")
+;;      (fringe bg-main)
+;;      (bg-line-number-inactive bg-main)
+;;      (bg-line-number-active bg-main)
+;;      (date-weekday fg-main)
+;;      (date-weekend red)
+;;      (bg-prose-block-delimiter bg-main)
+;;      (fg-prose-block-delimiter fg-dim)))
+
+;;   :config
+;;   (load-theme 'modus-vivendi t))
+
+#+end_src
+
+** Auto Completion
+
+#+begin_src emacs-lisp
+  ;; (use-package company
+  ;;   :ensure t
+  ;; :hook (after-init . global-company-mode))
+
+  (use-package corfu
+    :ensure t
+    ;; TAB-and-Go customizations
+    :custom
+    (corfu-cycle nil)           ;; Enable cycling for `corfu-next/previous'
+    (corfu-auto t)
+    (corfu-auto-prefix 2)
+    (corfu-min-width 25)
+    (corfu-preview-current nil)
+    (corfu-auto-delay 0.1)
+    :bind
+    (:map corfu-map ("SPC" . corfu-insert-separator))
+
+    ;; :custom-face
+    ;; (corfu-current ((t (:background "#915e4e")))) ;:foreground "#D08770"
+
+    ;; Use TAB for cycling, default is `corfu-complete'.
+    ;; :bind
+    ;; (:map corfu-map
+    ;;       ("TAB" . corfu-next)
+    ;;       ([tab] . corfu-next)
+    ;;       ("S-TAB" . corfu-previous)
+    ;;       ([backtab] . corfu-previous))
+    :init
+    (global-corfu-mode))
+
+  (use-package nerd-icons-corfu
+    :ensure t
+    :config
+    (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
+#+end_src
+
+** CRUX
+
+#+begin_src emacs-lisp
+  (use-package crux
+    :ensure t
+    :commands (crux-smart-open-line-above
+               crux-delete-file-and-buffer
+               crux-duplicate-current-line-or-region
+               crux-rename-file-and-buffer
+               crux-top-join-line
+               crux-kill-line-backwards))
+#+end_src
+
+** Expand region
+
+#+BEGIN_SRC emacs-lisp
+  (use-package expreg
+    :ensure t
+    :general
+    ("C-=" 'expreg-expand))
+
+  ;; (use-package expand-region
+  ;;   :ensure t
+  ;;   :general
+  ;;   ("C-=" 'er/expand-region))
+#+END_SRC
+
+** Vertico family by Minad
+
+#+begin_src emacs-lisp
+  (use-package vertico
+    :ensure t
+    :init
+    (vertico-mode)
+    :custom
+    ;; (vertico-sort-function #'vertico-sort-history-alpha)
+    (vertico-sort-function 'sort-directories-first)
+    (vertico-count 15))
+
+  ;; Sort directories before files
+  (defun sort-directories-first (files)
+    (setq files (vertico-sort-history-alpha files))
+    (nconc (seq-filter (lambda (x) (string-suffix-p "/" x)) files)
+           (seq-remove (lambda (x) (string-suffix-p "/" x)) files)))
+
+  (use-package savehist
+    :ensure t
+    :init
+    (savehist-mode))
+
+  (use-package marginalia
+    :ensure t
+    :bind (:map minibuffer-local-map
+                ("M-a" . marginalia-cycle))
+    :custom
+    (marginalia-field-width 100)
+    (marginalia-align-offset 5)
+    (marginalia-align 'left)
+    :init
+    (marginalia-mode))
+
+  ;; Configure directory extension.
+  (use-package vertico-directory
+    :ensure nil
+    :after vertico
+    :ensure nil
+    ;; More convenient directory navigation commands
+    :bind (:map vertico-map
+                ("RET" . vertico-directory-enter)
+                ("DEL" . vertico-directory-delete-char))
+    ;; Tidy shadowed file names
+    :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
+
+
+  ;; (use-package embark
+  ;;   :ensure t
+  ;;   :bind
+  ;;   (("C-." . embark-act)         ;; pick some comfortable binding
+  ;;    ("C-;" . embark-dwim)        ;; good alternative: M-.
+  ;;    ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
+
+  ;;   :init
+
+  ;;   ;; Optionally replace the key help with a completing-read interface
+  ;;   (setq prefix-help-command #'embark-prefix-help-command)
+
+  ;;   ;; Show the Embark target at point via Eldoc.  You may adjust the Eldoc
+  ;;   ;; strategy, if you want to see the documentation from multiple providers.
+  ;;   (add-hook 'eldoc-documentation-functions #'embark-eldoc-first-target)
+  ;;   ;; (setq eldoc-documentation-strategy #'eldoc-documentation-compose-eagerly)
+
+  ;;   :config
+
+  ;;   ;; Hide the mode line of the Embark live/completions buffers
+  ;;   (add-to-list 'display-buffer-alist
+  ;;                '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+  ;;                  nil
+  ;;                  (window-parameters (mode-line-format . none)))))
+
+  (use-package orderless
+    :ensure t
+    :init
+    (setq orderless-component-separator "[ &]")
+    :custom
+    (orderless-component-separator " +\\|[-/]")
+    (completion-styles '(orderless basic))
+    (completion-category-overrides '((file (styles basic partial-completion)))))
+
+  (use-package consult
+    :ensure t
+    :hook (completion-list-mode . consult-preview-at-point-mode))
+
+  ;; (use-package embark-consult)
+
+#+end_src
+
+** Dired enhancements
+
+#+begin_src emacs-lisp
+  (use-package dired-filter
+    :ensure t
+    :after dired)
+#+end_src
+
+** Winum mode
+
+#+begin_src emacs-lisp
+  (use-package winum
+    :ensure t
+    :general
+    (:keymaps 'winum-keymap
+              "M-1" 'winum-select-window-1
+              "M-2" 'winum-select-window-2
+              "M-3" 'winum-select-window-3
+              "M-4" 'winum-select-window-4
+              "M-5" 'winum-select-window-5
+              "M-6" 'winum-select-window-6
+              "M-7" 'winum-select-window-7
+              "M-8" 'winum-select-window-8)
+    :init
+    (winum-mode))
+#+end_src
+
+** Which key
+
+#+begin_src emacs-lisp
+  (use-package which-key
+    :ensure t
+    :delight which-key-mode
+    :hook (after-init . which-key-mode)
+    :init
+    (setq which-key-sort-order 'which-key-prefix-then-key-order
+          which-key-sort-uppercase-first nil
+          which-key-add-column-padding 1
+          which-key-max-display-columns nil
+          which-key-min-display-lines 6
+          which-key-side-window-slot -10)
+    :config
+    ;; general improvements to which-key readability
+    (set-face-attribute 'which-key-local-map-description-face nil :weight 'bold)
+    (which-key-setup-side-window-bottom))
+#+end_src
+
+** Undo-fu
+
+#+begin_src emacs-lisp
+  (use-package undo-fu
+    :ensure t
+    :general
+    ("C-/" 'undo-fu-only-undo
+     "M-/" 'undo-fu-only-redo
+     "C-M-/" 'undo-fu-only-redo-all)
+    :config
+    (setq undo-limit 400000
+          undo-strong-limit 3000000
+          undo-outer-limit 3000000))
+
+  ;; (use-package undo-fu-session
+  ;;   :config
+  ;;   (global-undo-fu-session-mode))
+#+end_src
+
+** Browse kill ring
+
+#+begin_src emacs-lisp
+  (use-package browse-kill-ring
+    :ensure t
+    :general
+    ("M-y" 'browse-kill-ring)
+    :custom
+    (browse-kill-ring-highlight-current-entry t)
+    (browse-kill-ring-display-style 'one-line))
+#+end_src
+
+** Olivetti
+
+#+begin_src emacs-lisp
+  (use-package olivetti
+    :ensure t
+    :hook
+    (text-mode . olivetti-mode)
+    ;; (deft-mode . olivetti-mode)
+    (org-agenda-mode . olivetti-mode)
+    :custom
+    (olivetti-body-width 100))
+#+end_src
+
+** Avy
+
+#+begin_src emacs-lisp
+  (use-package avy
+    :ensure t)
+#+end_src
+
+** Display line numbers
+
+#+begin_src emacs-lisp
+  (use-package display-line-numbers
+    :ensure nil
+    :custom (display-line-numbers-width 4)
+    :hook
+    (prog-mode . display-line-numbers-mode)
+    (dired-mode . (lambda () (display-line-numbers-mode -1)))
+    (package-menu-mode . (lambda () (display-line-numbers-mode -1)))
+    (org-agenda-mode . (lambda () (display-line-numbers-mode -1)))
+    (text-mode . (lambda () (display-line-numbers-mode -1)))
+    (eat-mode . (lambda () (display-line-numbers-mode -1))))
+#+end_src
+
+** popwin
+
+#+begin_src emacs-lisp
+  (use-package popwin
+    :ensure t
+    :init
+    (popwin-mode 1))
+#+end_src
+
+** Org journal
+
+#+begin_src emacs-lisp
+  (use-package org-journal
+    :ensure t
+    :commands org-journal-new-entry
+    :custom
+    (org-journal-file-format "%Y/%m/%m-%d-%Y.org")
+    (org-journal-dir "~/org/daily_journal/")
+    (org-journal-date-format "%A, %d %B %Y")
+    (org-journal-find-file 'find-file)
+    (org-journal-carryover-items "")
+    (org-journal-file-type 'weekly)
+    (org-journal-file-header 'org-journal-file-header-func))
+
+  (defun org-journal-file-header-func (time)
+    "Custom function to create journal header."
+    (concat
+      (pcase org-journal-file-type
+        (`daily "#+TITLE: Daily Journal\n#+STARTUP: showeverything\n")
+        (`weekly "#+TITLE: Weekly Journal\n#+STARTUP: folded\n")
+        (`monthly "#+TITLE: Monthly Journal\n#+STARTUP: folded\n")
+        (`yearly "#+TITLE: Yearly Journal\n#+STARTUP: folded\n"))))
+#+end_src
+
+** Multiple cursors
+
+#+BEGIN_SRC emacs-lisp
+  (use-package multiple-cursors
+    :ensure t
+    :general
+    ("C->" 'mc/mark-next-like-this
+     "C-<" 'mc/mark-previous-like-this
+     "C-M-<mouse-1>" 'mc/add-cursor-on-click))
+    ;; ("C-c C-<" . mc/mark-all-like-this)
+    ;; ("C-c i r" . mc/mark-all-in-region)
+#+END_SRC
+
+** Electric pair
+
+#+begin_src emacs-lisp
+(use-package electric-pair-mode
+  :ensure nil
+  :hook ((prog-mode . electric-pair-mode)))
+         ;; (web-mode . (lambda () (electric-pair-mode 0)))))
+  ;; :init
+  ;; (add-hook 'web-mode-hook (lambda () (electric-pair-mode 0))))
+
+
+  ;; :custom
+  ;; (electric-pair-inhibit-predicate  #'electric-pair-conservative-inhibit))
+
+#+end_src
+
+** Indent bars
+
+#+begin_src emacs-lisp
+  (use-package indent-bars
+    :ensure t
+    :custom
+    (indent-bars-no-descend-lists t)
+    (indent-bars-treesit-support t)
+    (indent-bars-treesit-ignore-blank-lines-types '("module"))
+    :hook (prog-mode . indent-bars-mode))
+#+end_src
+
+** Spell checker
+
+#+begin_src emacs-lisp
+  (setq flyspell-issue-welcome-flag nil)
+  (add-hook 'text-mode-hook 'flyspell-mode)
+  (add-hook 'org-mode-hook 'flyspell-mode)
+  (setq ispell-program-name "aspell")
+  (setq save-abbrevs 'silently)
+  (setq-default abbrev-mode t)
+  (add-to-list 'ispell-skip-region-alist '("^#+BEGIN_SRC" . "^#+END_SRC"))
+#+end_src
+
+* Org mode
+
+#+begin_src emacs-lisp
+(use-package org
+  :ensure nil
+  :hook
+  (org-capture-mode . delete-other-windows)
+  ;; (org-mode . (lambda () (add-hook 'before-save-hook 'time-stamp nil 'local)))
+  ;; (org-mode . (lambda ()
+  ;;               (set (make-local-variable 'time-stamp-pattern)
+  ;;                    "8/^#\\+LAST_MODIFIED: %%$")))
+  :general
+  ("C-c l" 'org-store-link)
+  ("C-c a" 'org-agenda)
+  ;; ("C-c p" . org-set-property)
+  ("C-c c" 'org-capture)
+  ("C-c C-w" 'org-refile)
+  :custom
+  (org-auto-align-tags nil)
+  (org-tags-column 0)
+  (org-catch-invisible-edits 'show-and-error)
+  (org-special-ctrl-a/e t)
+  (org-insert-heading-respect-content t)
+
+  ;; Org styling, hide markup etc.
+  (org-hide-emphasis-markers t)
+  (org-pretty-entities t)
+  ;; (org-ellipsis "...")
+
+  ;; Agenda styling
+  (org-agenda-tags-column 0)
+  (org-agenda-block-separator ?-)
+  (org-agenda-time-grid
+   '((daily today require-timed)
+     (800 1000 1200 1400 1600 1800 2000)
+     " ----- " "-----------------"))
+  (org-agenda-current-time-string
+   "⭠ now ----------")
+  ;;  ;; Org basic
+  (org-archive-location (concat "~/org/archive/archive-"
+                                (format-time-string "%Y_%m-" (current-time)) "%s_archive::"))
+  (org-startup-indented t)
+  (org-startup-folded 'showall)
+  (org-use-sub-superscripts '{})
+  (org-deadline-warning-days 7)
+  (org-fontify-whole-heading-line t)
+  (org-agenda-skip-scheduled-if-done t)
+  (org-agenda-skip-deadline-if-done t)
+  (org-directory "~/org")
+  (org-fontify-done-headline t)
+  (org-tags-column 90)
+  (org-complete-tags-always-offer-all-agenda-tags t)
+  (org-fontify-quote-and-verse-blocks t)
+  (org-highlight-latex-and-related '(latex script entities))
+  (org-log-done 'time)
+  (org-confirm-babel-evaluate nil)
+  (org-src-fontify-natively t)
+  (org-src-tab-acts-natively t)
+  (org-src-preserve-indentation t)
+  ;; (org-latex-pdf-process (list
+  ;;                         "latexmk -pdflatex='lualatex -shell-escape -interaction nonstopmode' -pdf -f  %f"))
+  (org-todo-keywords
+   '((sequence "TODO" "|" "DONE" "SOMEDAY")))
+  (org-todo-keyword-faces
+   '(("TODO" :foreground "#cb4b16" :weight bold)
+     ("DONE" :foreground "#859900" :weight bold)
+     ("SOMEDAY" :foreground "#268bd2" :weight bold)))
+  (org-link-frame-setup (quote ((vm . vm-visit-folder-other-frame)
+                                (vm-imap . vm-visit-imap-folder-other-frame)
+                                (gnus . org-gnus-no-new-news)
+                                (file . find-file)
+                                (wl . wl-other-frame))))
+  ;; Org agenda
+  (org-agenda-use-tag-inheritance nil)
+  (org-agenda-inhibit-startup t)
+  ;; (org-agenda-include-diary t)
+  ;; (org-agenda-use-time-grid t)
+  (org-agenda-restore-windows-after-quit t)
+  (org-agenda-window-setup (quote current-window))
+  ;; (org-agenda-files '("/Users/sanghyuk/Library/CloudStorage/Dropbox/org/beorg/todo.org"))
+  (org-agenda-files (append
+                     '("~/org/todo.org")
+                     (directory-files-recursively "~/org/daily_journal/2025/" ".org$")))
+  (org-capture-templates
+   '(("t" "To-do item" entry (file "~/org/todo.org")
+      "* TODO [#B] %^{Todo} %^G \n:PROPERTIES:\n:CREATED: %U\n:AGENDA: %t\n:END:\n%?"
+      :prepend t)))
+  :init
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((emacs-lisp . t)
+     (python . t)))
+  :custom-face
+  (org-document-title ((t (:weight bold :height 1.6 :family "Roboto Slab"))))) ;:foreground "#D08770"
+#+end_src
