@@ -102,14 +102,6 @@
   ;; (add-hook 'deft-mode-hook 'hl-line-mode)
 #+END_SRC
 
-** Shortcuts to registered files
-
-#+BEGIN_SRC emacs-lisp
-(set-register ?i '(file . "~/.config/emacs/init.el"))
-(set-register ?l '(file . "~/.config/emacs/my_loader.org"))
-(set-register ?k '(file . "~/.config/emacs/my_keybindings.org"))
-#+END_SRC
-
 ** No lock files
 
 #+begin_src emacs-lisp
@@ -152,32 +144,39 @@
 
 #+begin_src emacs-lisp
 ;; No more terminal emulator inside Emacs. When needed, I'll stick to the default gnome terminal.
-;; (use-package eat
-;;   :ensure t)
 (use-package terminal-here
   :ensure t
   :general
   ("C-, o t" 'terminal-here-launch))
 
+(use-package vterm
+  :if (eq system-type 'darwin)
+  :general
+  ("C-, o v" 'vterm))
+
+(use-package vterm-toggle
+  :if (eq system-type 'darwin)
+  :general
+  ("C-`" 'vterm-toggle))
   
 #+end_src
 
 ** C language
 
 #+begin_src emacs-lisp
-  (use-package clang-format
-    :ensure t
-    :hook
-    (c-ts-mode . clang-format-on-save-mode))
+(use-package clang-format
+  :ensure t
+  :hook
+  (c-ts-mode . clang-format-on-save-mode))
 
-  (use-package c-ts-mode
-    :hook
-    (c-ts-mode . eglot-ensure)
-    (c-ts-mode . (lambda () (setq comment-start "//"
-                                  comment-end "")))
-    :mode ("\\.c\\'" . c-ts-mode)
-    :config
-    (setq-default c-ts-mode-indent-style "k&r"
+(use-package c-ts-mode
+  :hook
+  (c-ts-mode . eglot-ensure)
+  (c-ts-mode . (lambda () (setq comment-start "//"
+                                comment-end "")))
+  :mode ("\\.c\\'" . c-ts-mode)
+  :config
+  (setq-default c-ts-mode-indent-style "k&r"
   		c-ts-mode-indent-offset 4))
 #+end_src
 
