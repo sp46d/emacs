@@ -161,6 +161,14 @@
   
 #+end_src
 
+** Magit
+
+#+begin_src emacs-lisp
+(use-package magit
+  :ensure t
+  :general ("C-x g" 'magit))
+#+end_src
+
 ** C language
 
 #+begin_src emacs-lisp
