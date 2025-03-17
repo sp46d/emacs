@@ -4,8 +4,8 @@
 #+PROPERTY: header-args:emacs-lisp :results silent
 
 #+begin_src emacs-lisp
-  (use-package general
-    :ensure t)
+(use-package general
+  :ensure t)
 #+end_src
 
 * Unbind keys
@@ -52,6 +52,14 @@
  "C-M-i" 'emmet-next-edit-point
  "C-M-S-i" 'emmet-prev-edit-point)
  #+end_src
+
+*** Org-mode
+
+#+begin_src emacs-lisp
+(general-define-key
+ :keymaps '(org-mode-map)
+ "C-a" org-beginning-of-line)
+#+end_src
 
 ** With leader key
 *** File related (f)
