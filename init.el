@@ -19,7 +19,7 @@
 (use-package emacs
   :if (eq system-type 'gnu/linux)
   :init
-  (set-frame-font "JetBrains Mono 9" nil t)
+  (set-frame-font "JetBrains Mono 10" nil t)
   (set-face-font 'variable-pitch "Roboto Slab-10")
   (set-register ?i '(file . "~/.config/emacs/init.el"))
   (set-register ?l '(file . "~/.config/emacs/my_loader.org"))
